@@ -4,19 +4,37 @@ using UnityEngine;
 
 namespace Blips
 {
-    public class Entry : LevelModule
+    public class Entry : ThunderScript
     {
         System.Random random = new System.Random();
-        public string chanceComment;
-        public double healthChance;
-        public double manaChance;
-        public double focusChance;
-        public double goldenChance;
-        public string minMaxConstComment;
-        public override IEnumerator OnLoadCoroutine()
+        [ModOption(name: "Health Blip Chance", tooltip: "The chance that a health blip will spawn when you kill an enemy.", valueSourceName: nameof(chanceValues), defaultValueIndex = 10, order = 1)]
+        public static float healthChance = 5f;
+        [ModOption(name: "Mana Blip Chance", tooltip: "The chance that a mana blip will spawn when you kill an enemy.", valueSourceName: nameof(chanceValues), defaultValueIndex = 10, order = 2)]
+        public static float manaChance = 5f;
+        [ModOption(name: "Focus Blip Chance", tooltip: "The chance that a focus blip will spawn when you kill an enemy.", valueSourceName: nameof(chanceValues), defaultValueIndex = 10, order = 3)]
+        public static float focusChance = 5f;
+        [ModOption(name: "Golden Blip Chance", tooltip: "The chance that a golden blip will spawn when you kill an enemy.", valueSourceName: nameof(chanceValues), defaultValueIndex = 5, order = 4)]
+        public static float goldenChance = 2.5f;
+        public static ModOptionFloat[] chanceValues()
         {
+            ModOptionFloat[] modOptionFloats = new ModOptionFloat[201];
+            float num = 0f;
+            for (int i = 0; i < modOptionFloats.Length; ++i)
+            {
+                modOptionFloats[i] = new ModOptionFloat(num.ToString("0.0"), num);
+                num += 0.5f;
+            }
+            return modOptionFloats;
+        }
+        public override void ScriptEnable()
+        {
+            base.ScriptEnable();
             EventManager.onCreatureKill += EventManager_onCreatureKill;
-            return base.OnLoadCoroutine();
+        }
+        public override void ScriptDisable()
+        {
+            base.ScriptDisable();
+            EventManager.onCreatureKill -= EventManager_onCreatureKill;
         }
 
         private void EventManager_onCreatureKill(Creature creature, Player player, CollisionInstance collisionInstance, EventTime eventTime)
